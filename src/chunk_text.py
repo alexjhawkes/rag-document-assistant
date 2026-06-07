@@ -46,6 +46,30 @@ def clean_text(text: str) -> str:
 
     return '\n'.join(cleaned_lines).strip()
 
+def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list:
+    """
+    Split cleaned text into overlapping chunks.
+
+    Args:
+        text: Cleaned text string
+        chunk_size: Number of words per chunk
+        overlap: Number of words to overlap between chunks
+
+    Returns:
+        List of text chunk strings
+    """
+    words = text.split()
+    chunks = []
+    start = 0
+
+    while start < len(words):
+        end = start + chunk_size
+        chunk = ' '.join(words[start:end])
+        chunks.append(chunk)
+        start += chunk_size - overlap
+
+    return chunks
+
 
 def main():
     from pathlib import Path
@@ -53,16 +77,12 @@ def main():
 
     pdf_path = Path("data/sample_pdfs/my_document.pdf")
     raw_text = extract_text_from_pdf(str(pdf_path))
-
-    print("BEFORE CLEANING (first 500 chars):")
-    print(raw_text[:500])
-
-    print("\n" + "=" * 50 + "\n")
-
     cleaned = clean_text(raw_text)
+    chunks = chunk_text(cleaned, chunk_size=100, overlap=20)
 
-    print("AFTER CLEANING (first 500 chars):")
-    print(cleaned[:500])
+    print(f"Total chunks created: {len(chunks)}")
+    for i, chunk in enumerate(chunks[:3]):
+        print(f"\n--- Chunk {i+1} ---\n{chunk}")
 
 
 if __name__ == "__main__":
