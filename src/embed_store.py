@@ -1,6 +1,10 @@
 import os
+import json
+import numpy as np
+import faiss
 from openai import OpenAI
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 
@@ -31,11 +35,46 @@ def generate_embeddings(chunks: list) -> list:
     return embeddings
 
 
+def store_in_faiss(embeddings: list, chunks: list, index_path: str = "data/faiss_index", chunks_path: str = "data/chunks.json"):
+    """
+    Store embeddings in a FAISS index and save chunks to disk.
+
+    Args:
+        embeddings: List of embedding vectors
+        chunks: List of original text chunks
+        index_path: Where to save the FAISS index file
+        chunks_path: Where to save the chunks as JSON
+    """
+    # Convert embeddings to a numpy array (FAISS requires this format)
+    vectors = np.array(embeddings, dtype="float32")
+
+    # Get the number of dimensions (1536 for text-embedding-3-small)
+    dimension = vectors.shape[1]
+
+    # Create a FAISS index
+    # IndexFlatL2 means: store all vectors and search by L2 distance (similarity)
+    index = faiss.IndexFlatL2(dimension)
+
+    # Add our vectors to the index
+    index.add(vectors)
+
+    # Save the FAISS index to disk
+    faiss.write_index(index, index_path)
+    print(f"FAISS index saved to: {index_path}")
+
+    # Save the original chunks to disk as JSON
+    # We need these to return the actual text when a match is found
+    with open(chunks_path, "w", encoding="utf-8") as f:
+        json.dump(chunks, f, ensure_ascii=False, indent=2)
+    print(f"Chunks saved to: {chunks_path}")
+
+    return index
+
+
 def main():
     import sys
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-    from pathlib import Path
     from extract_text import extract_text_from_pdf
     from chunk_text import clean_text, chunk_text
 
@@ -47,8 +86,10 @@ def main():
     print(f"Generating embeddings for {len(chunks)} chunks...\n")
     embeddings = generate_embeddings(chunks)
 
-    print(f"\nDone! Each embedding has {len(embeddings[0])} numbers")
-    print(f"First 5 numbers of embedding 1: {embeddings[0][:5]}")
+    print(f"\nStoring in FAISS...\n")
+    store_in_faiss(embeddings, chunks)
+
+    print(f"\nDone! {len(chunks)} chunks indexed and ready to search.")
 
 
 if __name__ == "__main__":
