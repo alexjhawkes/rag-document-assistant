@@ -30,7 +30,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
 
 
 def main():
-    pdf_path = Path("data/sample_pdfs/my_document.pdf")
+    pdf_path = Path("data/sample_pdfs/rag_guide.pdf")
 
     if not pdf_path.exists():
         print(f"Error: File not found -> {pdf_path}")

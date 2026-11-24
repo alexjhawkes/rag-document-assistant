@@ -78,7 +78,7 @@ def main():
     from extract_text import extract_text_from_pdf
     from chunk_text import clean_text, chunk_text
 
-    pdf_path = Path("data/sample_pdfs/my_document.pdf")
+    pdf_path = Path("data/sample_pdfs/rag_guide.pdf")
     raw_text = extract_text_from_pdf(str(pdf_path))
     cleaned = clean_text(raw_text)
     chunks = chunk_text(cleaned, chunk_size=100, overlap=20)

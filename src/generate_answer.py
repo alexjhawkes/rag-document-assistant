@@ -52,9 +52,10 @@ def main():
 
     # Try a few different questions
     questions = [
-        "What is Alex's work experience?",
-        "What technologies does Alex know?",
-        "What is Alex's highest level of education?"
+        "What problems does RAG solve compared to using an LLM on its own?",
+        "Why do chunks overlap, and what is the trade-off?",
+        "How can you evaluate a RAG system?",
+        "Who won the 2022 FIFA World Cup?"  # not in the document: should say it doesn't know
     ]
 
     for query in questions:
